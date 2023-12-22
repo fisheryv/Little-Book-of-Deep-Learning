@@ -69,7 +69,7 @@
 
 {
 \everymath{\color{black}}
-\tableofcontents* % Prints the table of contents
+\tableofcontents % Prints the table of contents
 %\addcontentsline{toc}{chapter}{Contents}
 }
 
@@ -83,132 +83,53 @@
 \chapter*{前言}
 \addcontentsline{toc}{chapter}{前言}
 
-\keyterm[lorem]{Lorem}
+\citep{nips-1502.c399862d3b9d6b76c8436e924a68c45b} 证明，仅用二十多年前[\cite[LeCun et al., 1989]{lecun-89e}]诞生的结构简单的\emph{人工神经网络}，只需放大百倍，并在同等放大的数据集上进行训练，就可以以巨大优势击败当时最先进的复杂图像识别方法。这一发现引发了当今人工智能的进步。
 
-\lipsum[1-3]
+这一突破得益于\emph{图形处理单元} (\emph{GPU})、大众市场以及原本为实时图像合成而开发现在重新应用于人工神经网络的高度并行计算设备。
+
+从那时起，在``\emph{深度学习}''这一总称下，各种网络结构、训练策略和专用硬件的创新使得人工神经网络的规模和训练所用数据量呈指数级增长 [\ref{}{Sevilla et al., 2022}]。这掀起了从计算机视觉与机器人科学到语音和自然语言处理等一系列技术领域的成功应用浪潮。
+
+尽管深度学习的大部分内容并不难理解，但它综合了线性代数、微积分、概率、优化、信号处理、编程、算法和高性能计算等不同的学科知识，使得学习变得复杂。
+
+这本小书不会试图详尽无遗，而是仅限于理解重要模型所需的背景知识。事实证明，这是一种广受好评的方法，本书在 Twitter 上发布一个月内，PDF 版本的下载量就达到了 25 万次。
+
+如果您没有从官网 
+\begin{center}
+\href{https://fleuret.org/public/lbdl.pdf}{https://fleuret.org/public/lbdl.pdf}
+\end{center}
+获取本书，请从官网下载，以便我可以统计读者的数量。
+
+\begin{flushright}
+  François Fleuret,\\
+  2023.06.23
+\end{flushright}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \part{基础}
 
+\input{part1/ch1.tex}
+\input{part1/ch2.tex}
+\input{part1/ch3.tex}
 
-%% This first part provides a minimal background about machine
-%% learning, issues and techniques for efficient computation, and the
-%% strategies to train a parametric model.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{机器学习}
+\part{深度模型}
 
-\cite{arxiv-1907.07174}
+\input{part2/ch4.tex}
+\input{part2/ch5.tex}
 
-\lipsum[1-3]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{高性能计算}
+\part{应用}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{figure}
-  \center
-  \begin{tikzpicture}[deepnet]
-    \path
-    node[var] (X) {$X$}
-    coordinate[next=4,layer] (encoder start)
-    node[next=4,layer,param] (encoder embed) {$\embedding$}
-    node[next,layer small] (encoder sum) {$+$}
-    node[next=4,layer large,param] (encoder sa) {$\selfattention$}
-    coordinate[next=4,layer] (encoder end)
-    ;
-
-    \node[var,left=10pt of encoder sum] (encoder pe) {$\positionalencoding$};
-
-    \path
-    node[var,above=8mm of encoder sa] (Z) {$Z$}
-    coordinate[next=4,layer] (decoder start)
-    node[next=4,layer,param] (decoder embed) {$\embedding$}
-    node[next,layer small] (decoder sum) {$+$}
-    node[next=4,layer large,param,text height=3.5ex,every text node part/.style={align=center}] (decoder sa) {$\operatorname{causal}$\\[-1pt]$\selfattention$}
-    node[next=4,param,layer large,inputs={$\hspace*{3pt}Q\hspace*{38pt}KV$}] (decoder ca) {$\crossattention$}
-    node[next=4,layer,param] (decoder readout) {$\fullyconnected$}
-    coordinate[next=4,layer] (end)
-    node[next=4,var] (Y) {$Y$}
-    ;
-
-    \node[var,left=10pt of decoder sum] (decoder pe) {$\positionalencoding$};
-
-    \begin{scope}[on background layer]
-      \node[replicated=N,fit=(encoder sa)] {};
-      \node[replicated=N,fit=(decoder sa) (decoder ca)] {};
-
-      \draw[halo]
-      (X)--(encoder start)--(encoder embed)--(encoder sum)--(encoder sa)
-      ;
-
-      \draw[halo]
-      (Z)--(decoder start)--(decoder embed)--(decoder sum)--(decoder sa)
-      ;
-
-      \draw[halo] (encoder pe)--(encoder sum);
-      \draw[halo,->] (decoder ca) -- (decoder readout) -- (Y);
-
-      \draw[halo] (decoder pe)--(decoder sum);
-
-      \coordinate (decoder ca q) at ($(decoder ca.south west)!0.5!(decoder ca.south)$);
-      \coordinate (decoder ca kv) at ($(decoder ca.south east)!0.5!(decoder ca.south)$);
-      \coordinate (decoder ca kv d) at ($(decoder ca kv)!0.5!(decoder ca kv|-decoder sa.north)$);
-
-      \draw[halo] (decoder ca q)--(decoder ca q|-decoder sa.north);
-      %%       \draw[halo] (decoder ca kv)|-(encoder end)--(encoder sa.north);
-      \draw[halo] (decoder ca kv)--(decoder ca kv d)--++(3.25\layerthickness,0)|-(encoder end)--(encoder sa.north);
-    \end{scope}
-
-    \begin{pgfinterruptboundingbox}
-
-      \node[fit=(encoder embed) (encoder pe) (encoder sa),xshift=-5pt] (encoder) {};
-
-      \draw[curly brace]
-      %
-      (encoder.south west) -- (encoder.north west)
-      %
-      node[midway,left,every text node part/.style={align=center},xshift=-0.5em,yshift=2pt] {\likecaption Encoder};
-
-      \node[fit=(decoder embed) (decoder pe) (decoder readout),xshift=-5pt] (decoder) {};
-
-      \draw[curly brace]
-      %
-      (decoder.south west) -- (decoder.north west)
-      %
-      node[midway,left,every text node part/.style={align=center},xshift=-0.5em,yshift=2pt] {\likecaption Decoder};
-
-      \setlength{\diminfoshift}{85pt}
-      \diminfo{X}{X}{$T$}
-      \diminfo{encoder embed}{X}{$T \times D$}
-      \diminfo{encoder sa}{X}{$T \times D$}
-      \diminfo{Z}{X}{$S$}
-      \diminfo{decoder embed}{X}{$S \times D$}
-      \diminfo{decoder ca}{X}{$S \times D$}
-      \diminfo{decoder readout}{X}{$S \times V$}
-    \end{pgfinterruptboundingbox}
-
-  \end{tikzpicture}
-
-  \caption[Transformer]{Original encoder-decoder
-    \keyterm[Transformer]{Transformer model} for sequence-to-sequence
-    translation \citep{arxiv-1706.03762}.}\label{fig:transformer}
-\end{figure}
-
-\lipsum[1-2]
+\input{part3/ch6.tex}
+\input{part3/ch7.tex}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \bibliography{main}
 
-%% If there is an index, it should follow the bibliography (see the
-%% Manual, 14.62). Bibliography entries are listed in one alphabetical
-%% sequence arranged by the surname of the first author or by title if
-%% there is no author.25 Nov 2022
-%%
-%% Bibliography - Chicago Citation Style, 17th Edition - Library
 
 \printindex
 
