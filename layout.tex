@@ -1,0 +1,591 @@
+% -*- mode: latex; mode: reftex; mode: auto-fill; mode: flyspell; coding: utf-8; -*-
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{ctex}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{dsfont}
+\usepackage{ifthen}
+\usepackage{caption}
+
+\let\ordinal\relax
+\usepackage[us]{datetime}
+\newdateformat{dotdate}{\THEYEAR.\twodigit{\THEMONTH}.\twodigit{\THEDAY}}
+
+\usepackage{imakeidx}
+\makeindex[columns=1]
+
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=0pt,itemindent=1em,itemsep=2ex}
+\setlist{nosep} % or \setlist{noitemsep} to leave space around whole list
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[osf]{libertine}
+\usepackage{microtype}
+
+\usepackage[
+  linktocpage=true,
+  unicode=true,
+  bookmarks=true,
+  bookmarksnumbered=false,
+  bookmarksopen=false,
+  breaklinks=true,
+  pdfborder={0 0 1},
+  backref=page,
+  colorlinks=true,
+  linkcolor=links,
+  urlcolor=links,
+  citecolor=links,
+  hypertexnames=false, % to avoid errors with autonum
+]{hyperref} % PDF meta-information specification
+
+\urlstyle{same}
+
+\usepackage[object=vectorian]{pgfornament}
+\def\textsep{%
+\vskip1.5ex
+
+\centerline{\pgfornament[anchor=center,ydelta=0pt,width=2cm]{82}}
+
+\vskip0.5ex
+}
+
+\AddToHook{cmd/section/before}{\clearpage}
+\usepackage[section]{placeins}
+
+\usepackage{xspace}
+\def\wordfig{Figure\xspace}
+\def\wordeq{Equation\xspace}
+\def\wordtable{Table\xspace}
+\def\wordchap{Chapter\xspace}
+
+\let\oldcenter\center
+\let\oldendcenter\endcenter
+\renewenvironment{center}{\setlength\topsep{0pt}\oldcenter}{\oldendcenter}
+
+\usepackage{environ}
+\NewEnviron{hardcenter}{\makebox[\textwidth][c]{\BODY}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Math
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{dsfont}
+\usepackage{mleftright}
+
+\setlength{\thinmuskip}{1.5mu} % by default it is equal to 3 mu
+\setlength{\medmuskip}{2mu} % by default it is equal to 4 mu
+\setlength{\thickmuskip}{3.5mu} % by default it is equal to 5 mu
+
+\makeatletter
+\DeclareFontEncoding{LS1}{}{}
+\DeclareFontSubstitution{LS1}{stix}{m}{n}
+\DeclareMathAlphabet{\mathcal}{LS1}{stixscr}{m}{n}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\inputgenerated}[1]{%
+  \IfFileExists{#1}{\input{#1}}{%
+    \errmessage{Cannot find "#1", compile with -shell-escape}\stop}%
+}
+
+%\newcommand{\gradient}[2]{{\nabla\!}_{#1 \mid #2}}
+\newcommand{\gradient}[2]{{\nabla\!#1}_{\mid #2}}
+
+\def\given{\,\middle\vert\,}
+\newcommand{\proba}{{P}}
+\newcommand{\seq}{{S}}
+\newcommand{\expect}{\mathds{E}}
+\newcommand{\variance}{\mathds{V}}
+\newcommand{\empexpect}{\hat{\mathds{E}}}
+\newcommand{\mutinf}{\mathds{I}}
+\newcommand{\empmutinf}{\hat{\mathds{I}}}
+\newcommand{\entropy}{\mathds{H}}
+\newcommand{\empentropy}{\hat{\mathds{H}}}
+\newcommand{\ganG}{\mathbf{G}}
+\newcommand{\ganD}{\mathbf{D}}
+\newcommand{\ganF}{\mathbf{F}}
+
+\newcommand{\dkl}{\mathds{D}_{\mathsf{KL}}}
+\newcommand{\djs}{\mathds{D}_{\mathsf{JS}}}
+
+\newcommand*{\vertbar}{\rule[-1ex]{0.5pt}{2.5ex}}
+\newcommand*{\horzbar}{\rule[.5ex]{2.5ex}{0.5pt}}
+
+\def\positionalencoding{\operatorname{pos-enc}}
+\def\concat{\operatorname{concat}}
+\def\crossentropy{\LL_{\operatorname{ce}}}
+
+\def\embedding{\operatorname{embed}}
+\def\mha{\operatorname{mha}}
+\def\layernorm{\operatorname{layernorm}}
+\def\batchnorm{\operatorname{batchnorm}}
+\def\fullyconnected{\operatorname{fully-conn}}
+\def\softargmax{\operatorname{softargmax}}
+\def\selfattention{\operatorname{self-att}}
+\def\crossattention{\operatorname{cross-att}}
+\def\attention{\operatorname{att}}
+\def\relu{\operatorname{relu}}
+\def\gelu{\operatorname{gelu}}
+\def\dropout{\operatorname{dropout}}
+\def\resblock{\operatorname{resblock}}
+\def\dresblock{\operatorname{dresblock}}
+\def\reshape{\operatorname{reshape}}
+\def\convtwod{\operatorname{conv-2d}}
+\def\maxpool{\operatorname{maxpool}}
+\def\avgpool{\operatorname{avgpool}}
+%\def\samax{\Upsilon}
+%\def\samax{\operatorname{samax}}
+\def\sigmoid{\operatorname{sigm}}
+\def\sample{\operatorname{sample}}
+\def\diag{\operatorname{diag}}
+\def\sign{\operatorname{sign}}
+\def\argmax{\operatornamewithlimits{argmax}}
+\def\argmin{\operatornamewithlimits{argmin}}
+
+%\usepackage{oldgerm}
+\usepackage{relsize}
+
+\usepackage{xfp}
+\newcommand{\adaptedscale}[1]{#1}
+
+%\newcommand{\li}[1]{^{\textgoth{#1}}}
+\newcommand{\li}[1]{^{\scalebox{.5}{\textbf{#1}}}}
+%% \newcommand{\li}[1]{^{\textbf{#1}}}
+%\newcommand{\li}[1]{{|#1}}
+\newcommand{\DATAVAR}{\mathbf{{\cal D}}}
+\newcommand{\DATAVAL}{\mathbf{d}}
+\newcommand{\BD}{\mathbf{D}}
+\newcommand{\LL}{\mathcal{L}}
+\newcommand{\Ll}{\mathcal{l}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\Lh}{\mathcal{h}}
+\newcommand{\transpose}{^{\top}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% tikz
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{tikz}
+\usetikzlibrary{arrows,arrows.meta,calc}
+\usetikzlibrary{patterns,backgrounds}
+\usetikzlibrary{positioning,fit}
+\usetikzlibrary{shapes.geometric,shapes.multipart}
+\usetikzlibrary{patterns.meta,decorations.pathreplacing,calligraphy}
+\usetikzlibrary{tikzmark}
+\usetikzlibrary{decorations.pathmorphing}
+
+% remove the "There is no ... in font nullfont!" errors
+\AtBeginEnvironment{tikzpicture}{\tracinglostchars=0\relax}
+
+%% \tikzset{
+%% }
+
+\definecolor{operatorcolor}{rgb}{0.95,0.95,1.00}
+\definecolor{paramcolor}{rgb}{0.8,0.8,1.0}
+
+\tikzset{
+  axes/.style={
+    samples=1000,
+    %smooth,
+    %scale=0.8,
+  },
+}
+
+\newlength{\layergap}
+\setlength{\layergap}{2pt}
+\newlength{\layerthickness}
+\setlength{\layerthickness}{12pt}
+\newlength{\layerwidth}
+\setlength{\layerwidth}{4.5em}
+
+\newlength{\diminfoshift}
+\setlength{\diminfoshift}{70pt}
+
+\tikzset{
+  >={Straight Barb[angle'=80,scale=\adaptedscale{1.2}]},
+  deepnet/.style={
+%%     background rectangle/.style={fill=paper},
+%%     show background rectangle,
+    %every text node part/.style={align=center},
+    %rounded corners=0.5pt,
+    curly brace/.style={sharp corners,very thick,decoration={calligraphic brace,amplitude=0.20cm},decorate},
+    font=\footnotesize,
+    halo/.style={
+      %%       on layer=background,
+      preaction={
+        draw=white,line width=2pt,-,%shorten <=1pt,shorten >=1pt,
+      },
+    },
+    operator/.style={draw=black!30,fill=operatorcolor,inner sep=1pt},
+    next/.style={above=##1\layergap of \tikzlastnode},
+    next/.default={1},
+    prev/.style={below=##1\layergap of \tikzlastnode},
+    prev/.default={1},
+    var/.style={inner sep=2pt},
+    flow/.style={thick},
+    layer/.style={operator,minimum width=\layerwidth,minimum height=\layerthickness,text depth=1pt,text height=1.3ex},
+    layer small/.style={layer,minimum width=\layerthickness},
+    layer large/.style={layer,minimum height=1.5\layerthickness},
+    layer very large/.style={layer,minimum height=1.75\layerthickness},
+    info line/.style={
+      draw=black,line width=0.4pt,dash pattern=on 0.4pt off 2pt,
+%%       draw=black!50,line width=0.2pt,-,
+      shorten >=2pt,shorten <=2pt,
+    },
+    block definition/.style={draw=black,inner sep=2\layergap,dash pattern=on 2.5pt off 0.5pt},
+    replicated/.style={
+      draw=black,
+      inner sep=\layergap, dash pattern=on 2.5pt off 0.8pt,
+      label={[%
+          inner sep=2pt,
+          anchor=south west,
+        ]south east:$\times ##1$},
+    },
+    %
+    inputs/.style={
+      text depth=1.5ex,
+      path picture={%
+        \draw[black]
+        ($(path picture bounding box.south west)+(1pt,6pt)$)--($(path picture bounding box.south east)+(-1pt,6pt)$)
+        %
+        node[midway,yshift=-15.5pt] {\scalebox{.5}{##1}};
+      }
+    },
+    %
+    param/.style={%
+%      draw=paramcolor,
+      fill=paramcolor,
+%%       preaction={fill=white},
+%%       pattern color=black!15,
+%%       pattern={Lines[line width=0.5pt,angle=-45,distance=1pt]}
+    },
+    meta param/.style={label={[%
+          inner sep=0pt,
+          text depth=0pt,
+          anchor=south west,
+          shift={(1.5pt,0pt)},
+        ]south east:{\tiny\color{blue}##1}}},
+  }
+}
+
+\newcommand{\diminfo}[3]{%
+  \coordinate (t) at ($(#2.north)+(\diminfoshift,0.5\layergap)$);
+  \node[inner sep=0pt,yshift=-0.5pt] (s) at (#1.north east-|t) {\tiny #3};
+  \draw[info line] (#1.north east|-s)--(s);
+}
+
+\newcommand{\defop}[2]{%
+%%   \coordinate (BL) at ($(#1.north)+(-0.49\textwidth, 4\layergap)$);
+%%   \coordinate (BR) at ($(#1.north)+( 0.49\textwidth, 4\layergap)$);
+%%   \coordinate (TL) at ($(#2.south-|#1)+(-0.49\textwidth,-4\layergap)$);
+%%   \coordinate (TR) at ($(#2.south-|#1)+( 0.49\textwidth,-4\layergap)$);
+  \begin{pgfinterruptboundingbox}
+    \node[anchor=south west,inner sep=2pt] (label) at #1 {#2};
+    \draw[decorate,decoration={coil,amplitude=0.5pt,segment length=2pt,aspect=0}] (label.south west) -- (label.south east);
+  \end{pgfinterruptboundingbox}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% style on layer
+
+\tikzset{%
+  on layer/.code={
+    \pgfonlayer{#1}\begingroup
+    \aftergroup\endpgfonlayer
+    \aftergroup\endgroup
+  }}
+
+\makeatletter
+%% fix for bb computation of double wires.
+%% from https://tex.stackexchange.com/questions/130456/tikz-double-lines-are-shifted
+\tikzset{
+  only coordinates are relevant/.is choice,
+  only coordinates are relevant/.default=true,
+  only coordinates are relevant/true/.code={%
+    \tikz@addmode{\pgf@relevantforpicturesizefalse}},
+  only coordinates are relevant/false/.code={%
+    \tikz@addmode{\pgf@relevantforpicturesizetrue}}
+}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\makeatletter
+% extract interval `start:end` values
+\def\get@interval@start#1:#2\@nil{#1}
+\def\get@interval@end#1:#2\@nil{#2}
+% get domain
+\def\domainmin{\expandafter\get@interval@start\tikz@plot@domain\@nil}
+\def\domainmax{\expandafter\get@interval@end\tikz@plot@domain\@nil}
+% get range
+\def\rangemin{\expandafter\get@interval@start\tikz@plot@range\@nil}
+\def\rangemax{\expandafter\get@interval@end\tikz@plot@range\@nil}
+\makeatother
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{patchplots,colormaps}
+\pgfplotsset{compat = newest}
+
+\newcommand{\mygrid}[5]{%
+  \pgfmathsetmacro{\xmin}{#1+1}
+  \pgfmathsetmacro{\xmax}{#1+#3-1}
+  \pgfmathsetmacro{\ymin}{#2+1}
+  \pgfmathsetmacro{\ymax}{#2+#4-1}
+  \ifthenelse{\equal{#5}{}}
+  {\draw (#1,#2) rectangle ++(#3,#4);}
+  {\draw[fill=#5] (#1,#2) rectangle ++(#3,#4);}
+  \foreach \x in {\xmin,...,\xmax}{
+    \draw (\x,#2)-- ++(0,#4);
+  }
+  \foreach \y in {\ymin,...,\ymax}{
+    \draw (#1,\y)-- ++(#3,0);
+  }
+}
+
+\newcommand{\amatrix}[7]{%
+  \begin{tikzpicture}[scale=\adaptedscale{0.2}]
+    \ifthenelse{\equal{#7}{}}
+               {}
+               {\draw[draw=none,fill=#7] (#3,#4) rectangle ++(#5,#6);}
+               \mygrid{0}{0}{#1}{#2}{}
+  \end{tikzpicture}%
+}
+
+\newcommand{\gridcube}[3]{% 7,4,6
+
+  \foreach \b in { 0,...,#2 }{
+    \draw (0,\b,0)--++(#1,0,0)--++(0,0,#3);
+  }
+
+  \foreach \d in { 0,...,#1 }{
+    \draw (\d,0,0)--++(0,#2,0)--++(0,0,#3);
+  }
+
+  \foreach \hw in { 0,...,#3 }{
+    \draw (0,0,\hw)++(#1,0,0)--++(0,#2,0)--++(-#1,0,0);
+  }
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Bibliography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[square]{natbib}
+\bibliographystyle{plainnatmodified}
+\nobibintoc
+\newcommand{\biburl}[1]{\href{#1}{pdf}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Layout
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setlength{\cftbeforepartskip}{3ex}
+\setlength{\cftbeforechapterskip}{1.0ex}
+\setlength{\cftbeforesectionskip}{0.1ex}
+
+%% \setsecnumdepth{subsection}
+%% \renewcommand{\thesubsection}{\alph{subsection}\,-\hskip -12pt\,}
+%% \setsecnumformat{\csname the#1\endcsname :}
+
+\cftsetindents{part}{0em}{1.8em}
+\cftsetindents{chapter}{0em}{1.8em}
+\cftsetindents{section}{1.8em}{2.2em}
+
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{2ex}
+
+\setstocksize{15cm}{8cm}
+\settrimmedsize{\stockheight}{\stockwidth}{*}
+\setlrmarginsandblock{8pt}{8pt}{*}
+\setulmarginsandblock{14pt}{26pt}{*}
+\setheadfoot{14pt}{14pt}
+\setheaderspaces{*}{*}{*}
+%% \setlength{\headsep}{0pt}
+%% \setlength{\headheight}{0pt}
+
+%% \newcommand\ignoreme[1]{}
+%% \setsecheadstyle{\ignoreme}
+
+%% \makepagestyle{littlebook}
+%% \makeoddhead{littlebook}{}{}{}
+%% \makeevenhead{littlebook}{}{}{}
+\newcommand{\myfooter}{\footnotesize {\thepage \hskip 0.8em \raisebox{-2pt}{\vline height 8pt} \hskip 0.4em \thelastpage}}
+%% \makeoddfoot{littlebook}{}{\myfooter}{}
+%% \makeevenfoot{littlebook}{}{\myfooter}{}
+\makeoddfoot{plain}{}{\myfooter}{}
+\makeevenfoot{plain}{}{\myfooter}{}
+\pagestyle{plain}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand{\partnamefont}{\centering\sffamily\scshape\Huge}
+\renewcommand{\partnumfont}{\sffamily\Huge}
+\renewcommand{\parttitlefont}{\centering\sffamily\scshape\Huge}
+\renewcommand{\beforepartskip}{\vspace*{\stretch{3}}}
+\renewcommand{\afterpartskip}{%
+\vspace*{\stretch{4}}
+\newpage%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\makechapterstyle{Tufte}{
+\renewcommand{\chapterheadstart}{\null \vskip1.5\onelineskip}
+\renewcommand{\printchaptername}{\large\sffamily\itshape\chaptername}
+\renewcommand{\printchapternum}{\LARGE\thechapter \\}
+\renewcommand{\afterchapternum}{}
+\renewcommand{\printchaptertitle}[1]{
+\raggedright
+\itshape\Huge{##1}}
+\renewcommand{\afterchaptertitle}{
+\vskip3\onelineskip
+}}
+\chapterstyle{Tufte}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setsecheadstyle{\sethangfrom{\noindent ##1}\raggedright\sffamily\itshape\Large}
+\setbeforesecskip{-.9\onelineskip}
+\setaftersecskip{.75\onelineskip}
+
+\setsubsecheadstyle{\sethangfrom{\noindent  ##1}\raggedright\sffamily\itshape\large}
+\setbeforesubsecskip{\onelineskip}
+\setaftersubsecskip{.65\onelineskip}
+
+\setsubsubsecheadstyle{\sethangfrom{\noindent ##1}\raggedright\sffamily\itshape}
+\setbeforesubsubsecskip{-.5\onelineskip}
+\setaftersubsubsecskip{.1\onelineskip}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\captiontitlefont{\itshape\small}
+\captionnamefont{\small}
+\newcommand{\likecaption}{\color{black}\itshape\small}
+
+\midsloppy
+
+\checkandfixthelayout
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The \todo command
+\newcounter{nbdrafts}
+\setcounter{nbdrafts}{0}
+\makeatletter
+\newcommand{\checknbdrafts}{
+\ifnum \thenbdrafts > 0
+\@latex@warning@no@line{*WARNING* The document contains \thenbdrafts \space draft note(s)}
+\fi}
+\newcommand{\todo}[1]{\addtocounter{nbdrafts}{1}{\color{red} #1}}
+\makeatother
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definecolor{paper}{rgb}{0.95,0.95,0.95}
+\definecolor{math}{rgb}{0.0,0.5,0.0}
+%\definecolor{links}{rgb}{0.0,0.2,0.5}
+\definecolor{links}{rgb}{0.0,0.2,0.85}
+%\definecolor{hlcolor}{rgb}{0.8,1.0,0.85}
+
+\definecolor{blue}{rgb}{0.3,0.5,0.85}
+\definecolor{red}{rgb}{0.65,0.0,0.0}
+\definecolor{green}{rgb}{0.0,0.50,0.0}
+\definecolor{dimmed}{rgb}{0.8,0.8,0.8}
+\definecolor{orange}{rgb}{1.0,0.75,0.0}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Pretty underline, taken from
+% https://tex.stackexchange.com/questions/36894/underline-omitting-the-descenders
+
+\usepackage{soul}
+\usepackage{xcolor}
+\usepackage{xparse}
+\makeatletter
+
+\ExplSyntaxOn
+\cs_new:Npn \white_text:n #1
+  {
+    \fp_set:Nn \l_tmpa_fp {#1 * .01}
+    \llap{\textcolor{white}{\the\SOUL@syllable}\hspace{\fp_to_decimal:N \l_tmpa_fp em}}
+    \llap{\textcolor{white}{\the\SOUL@syllable}\hspace{-\fp_to_decimal:N \l_tmpa_fp em}}
+  }
+\NewDocumentCommand{\whiten}{ m }
+    {
+      \int_step_function:nnnN {1}{1}{#1} \white_text:n
+    }
+\ExplSyntaxOff
+
+\NewDocumentCommand{ \prettyul }{ D<>{5} O{0.2ex} O{0.1ex} +m } {%
+\begingroup
+\setul{#2}{#3}%
+\def\SOUL@uleverysyllable{%
+   \setbox0=\hbox{\the\SOUL@syllable}%
+   \ifdim\dp0>\z@
+      \SOUL@ulunderline{\phantom{\the\SOUL@syllable}}%
+      \whiten{#1}%
+      \llap{%
+        \the\SOUL@syllable
+        \SOUL@setkern\SOUL@charkern
+      }%
+   \else
+       \SOUL@ulunderline{%
+         \the\SOUL@syllable
+         \SOUL@setkern\SOUL@charkern
+       }%
+   \fi}%
+    \ul{#4}%
+\endgroup
+}
+
+\makeatother
+
+% end of prettyul
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{accsupp}
+\usepackage{xcolor, soul}
+
+\definecolor{hlcolor}{rgb}{1.0,1.0,0.5}
+\sethlcolor{hlcolor}
+%% \definecolor{ulcolor}{rgb}{0.65,0.65,0.65}
+%% \setulcolor{ulcolor}
+
+%% \index{Attention Layer@\hypertarget{Attention Layer.ind}{}Attention Layer}
+%% \href{\#Attention Layer.ind}%
+
+%% \newcommand{\keyterm}[2][]{%
+%%   \ifthenelse{\equal{#1}{}}
+%%              {\prettyul[2pt]{#2}\linkedindex{#2}}
+%%              {\prettyul[2pt]{#2}\linkedindex{#1}}%
+%% }
+
+\newcommand{\keytermold}[2][]{%
+%  \BeginAccSupp{method=plain,ActualText={#2}}%
+  \ifthenelse{\equal{#1}{}}
+             {\prettyul[2pt]{#2}\index{#2}}
+             {\prettyul[2pt]{#2}\index{#1}}%
+%  \EndAccSupp{}%
+}
+
+\setulcolor{black}
+\setul{0.3ex}{0.5pt}
+\newcommand{\keyterm}[2][]{%
+  \ul{#2}%
+%%   \prettyul[2pt]{#2}%
+  \ifthenelse{\equal{#1}{}}{\index{#2}}{\index{#1}}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\gizmo}{%
+  \begin{tikzpicture}[scale=0.25]
+    \draw[draw=none,fill=red]  (0,0) rectangle ++(1,1);
+    \draw[draw=none,fill=blue] (1,0) rectangle ++(1,1);
+    \draw[draw=none,fill=blue] (0,1) rectangle ++(1,1);
+    \draw[draw=none,fill=red]  (1,1) rectangle ++(1,1);
+  \end{tikzpicture}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

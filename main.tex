@@ -1,0 +1,241 @@
+% -*- mode: latex; mode: reftex; mode: auto-fill; mode: flyspell; coding: utf-8; tex-command: "pdflatex.sh" -*-
+
+\documentclass[oneside,11pt]{memoir}
+
+\input{layout.tex}
+
+\usepackage{lipsum} 
+
+\hypersetup{
+  pdfauthor={Fisher Yu},
+  pdftitle={Little Book of Deep Learning Chinese Version},
+  pdfsubject={},
+  pdfkeywords={Deep Learning, Mathematics, Chinese},
+  pdfproducer={LaTeX and TikZ},
+  pdfcreator={XeLaTex},
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\thispagestyle{empty}
+
+\begin{center}
+
+\vspace*{\stretch{1}}
+
+{\huge 深度学习\\[0.75ex] 随身宝书}
+
+\vspace*{4ex}
+
+作者：François Fleuret \\
+译者：Fisher Yu
+
+\vspace*{\stretch{1}}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.8\textwidth]{cover.png}
+\end{figure}
+
+\vspace*{\stretch{1}}
+
+\footnotesize \dotdate\today
+
+\end{center}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace*{\stretch{1.25}}
+
+\href{https://fleuret.org/francois/}{François Fleuret} 是瑞士日内瓦大学计算机科学教授。
+
+封面插图是新认知机(Neocognitron) 的示意图，来自 Fukushima [1980]，它是深度神经网络的重要前身。
+
+本书格式适配手机屏幕。
+
+\vspace*{\stretch{1}}
+
+\vspace*{-3ex}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Table of content
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+{
+\everymath{\color{black}}
+\tableofcontents* % Prints the table of contents
+%\addcontentsline{toc}{chapter}{Contents}
+}
+
+\clearpage
+
+\listoffigures*
+\addcontentsline{toc}{chapter}{插图列表}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter*{前言}
+\addcontentsline{toc}{chapter}{前言}
+
+\keyterm[lorem]{Lorem}
+
+\lipsum[1-3]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\part{基础}
+
+
+%% This first part provides a minimal background about machine
+%% learning, issues and techniques for efficient computation, and the
+%% strategies to train a parametric model.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{机器学习}
+
+\cite{arxiv-1907.07174}
+
+\lipsum[1-3]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{高性能计算}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}
+  \center
+  \begin{tikzpicture}[deepnet]
+    \path
+    node[var] (X) {$X$}
+    coordinate[next=4,layer] (encoder start)
+    node[next=4,layer,param] (encoder embed) {$\embedding$}
+    node[next,layer small] (encoder sum) {$+$}
+    node[next=4,layer large,param] (encoder sa) {$\selfattention$}
+    coordinate[next=4,layer] (encoder end)
+    ;
+
+    \node[var,left=10pt of encoder sum] (encoder pe) {$\positionalencoding$};
+
+    \path
+    node[var,above=8mm of encoder sa] (Z) {$Z$}
+    coordinate[next=4,layer] (decoder start)
+    node[next=4,layer,param] (decoder embed) {$\embedding$}
+    node[next,layer small] (decoder sum) {$+$}
+    node[next=4,layer large,param,text height=3.5ex,every text node part/.style={align=center}] (decoder sa) {$\operatorname{causal}$\\[-1pt]$\selfattention$}
+    node[next=4,param,layer large,inputs={$\hspace*{3pt}Q\hspace*{38pt}KV$}] (decoder ca) {$\crossattention$}
+    node[next=4,layer,param] (decoder readout) {$\fullyconnected$}
+    coordinate[next=4,layer] (end)
+    node[next=4,var] (Y) {$Y$}
+    ;
+
+    \node[var,left=10pt of decoder sum] (decoder pe) {$\positionalencoding$};
+
+    \begin{scope}[on background layer]
+      \node[replicated=N,fit=(encoder sa)] {};
+      \node[replicated=N,fit=(decoder sa) (decoder ca)] {};
+
+      \draw[halo]
+      (X)--(encoder start)--(encoder embed)--(encoder sum)--(encoder sa)
+      ;
+
+      \draw[halo]
+      (Z)--(decoder start)--(decoder embed)--(decoder sum)--(decoder sa)
+      ;
+
+      \draw[halo] (encoder pe)--(encoder sum);
+      \draw[halo,->] (decoder ca) -- (decoder readout) -- (Y);
+
+      \draw[halo] (decoder pe)--(decoder sum);
+
+      \coordinate (decoder ca q) at ($(decoder ca.south west)!0.5!(decoder ca.south)$);
+      \coordinate (decoder ca kv) at ($(decoder ca.south east)!0.5!(decoder ca.south)$);
+      \coordinate (decoder ca kv d) at ($(decoder ca kv)!0.5!(decoder ca kv|-decoder sa.north)$);
+
+      \draw[halo] (decoder ca q)--(decoder ca q|-decoder sa.north);
+      %%       \draw[halo] (decoder ca kv)|-(encoder end)--(encoder sa.north);
+      \draw[halo] (decoder ca kv)--(decoder ca kv d)--++(3.25\layerthickness,0)|-(encoder end)--(encoder sa.north);
+    \end{scope}
+
+    \begin{pgfinterruptboundingbox}
+
+      \node[fit=(encoder embed) (encoder pe) (encoder sa),xshift=-5pt] (encoder) {};
+
+      \draw[curly brace]
+      %
+      (encoder.south west) -- (encoder.north west)
+      %
+      node[midway,left,every text node part/.style={align=center},xshift=-0.5em,yshift=2pt] {\likecaption Encoder};
+
+      \node[fit=(decoder embed) (decoder pe) (decoder readout),xshift=-5pt] (decoder) {};
+
+      \draw[curly brace]
+      %
+      (decoder.south west) -- (decoder.north west)
+      %
+      node[midway,left,every text node part/.style={align=center},xshift=-0.5em,yshift=2pt] {\likecaption Decoder};
+
+      \setlength{\diminfoshift}{85pt}
+      \diminfo{X}{X}{$T$}
+      \diminfo{encoder embed}{X}{$T \times D$}
+      \diminfo{encoder sa}{X}{$T \times D$}
+      \diminfo{Z}{X}{$S$}
+      \diminfo{decoder embed}{X}{$S \times D$}
+      \diminfo{decoder ca}{X}{$S \times D$}
+      \diminfo{decoder readout}{X}{$S \times V$}
+    \end{pgfinterruptboundingbox}
+
+  \end{tikzpicture}
+
+  \caption[Transformer]{Original encoder-decoder
+    \keyterm[Transformer]{Transformer model} for sequence-to-sequence
+    translation \citep{arxiv-1706.03762}.}\label{fig:transformer}
+\end{figure}
+
+\lipsum[1-2]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliography{main}
+
+%% If there is an index, it should follow the bibliography (see the
+%% Manual, 14.62). Bibliography entries are listed in one alphabetical
+%% sequence arranged by the surname of the first author or by title if
+%% there is no author.25 Nov 2022
+%%
+%% Bibliography - Chicago Citation Style, 17th Edition - Library
+
+\printindex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+
+\vspace*{\stretch{1}}
+
+\ifdefined\draft
+\begin{center}
+  {\color{red} (draft, do not circulate)}
+\end{center}
+\else
+本书根据
+\href{https://creativecommons.org/licenses/by-nc-sa/4.0/}{Creative
+  Commons BY-NC-SA 4.0 国际许可}授权
+\fi
+
+\begin{center}
+    翻译自 \href{https://fleuret.org/public/lbdl.pdf}{V1.1.1} - 2023.09.20
+\end{center}
+
+\vspace*{\stretch{1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\checknbdrafts
+
+\end{document}
