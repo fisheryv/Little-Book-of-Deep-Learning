@@ -73,6 +73,12 @@
 
 \subsubsection*{因果模型}
 
+我们所描述的训练过程对于每个 $t$ 都需要不同的输入，而且在 $t < t'$ 的情况下所做的大部分计算会在 $t'$ 时重复进行。这是极其低效的，因为 $T$ 通常是几百或几千的数量级。
+
+解决这个问题的标准策略是设计一个模型 $f$ 一次性预测所有 logits 向量 $l_1,\dots,l_T$，即：
+\[f : {1,\dots,K}^T \to \mathbb{R}^{T \times K}\]
+但存在计算结构使得计算 $x_t$ 的 logits $l_t$ 仅依赖于输入值 $x_1,\dots,x_{t-1}$。
+
 \begin{figure}
     \centering
     \includegraphics[width=0.9\textwidth]{fig/fig3.1.png}
@@ -80,7 +86,17 @@
     \label{fig3.1}
 \end{figure}
 
-\subsubsection*{Tokenizer}
+这样的模型称为\keyterm{因果模型}，因为在时间序列的情况下，它对应于不让未来影响过去，如图 \ref{fig3.1} 所示。
+
+其结果是，每个位置上的输出都假设输入只在该位置之前可用的情况下所得到的。在训练过程中，这使得我们能够计算一个完整序列的输出，并最大化该序列所有 token 的预测概率，这又归结为最小化每个 token 的交叉熵之和。
+
+请注意，为了简单起见，我们将 $f$ 定义为对长度固定为 $T$ 的序列进行操作。然而，实际使用的模型，例如我们将在 \ref{sec5.3} 节中看到的 Transformer 模型，能够处理任意长度的序列。
+
+\subsubsection*{分词器(Tokenizer)}
+
+处理自然语言时，一个重要技术细节是，token 的表示方法多种多样，从最细粒度的单个符号到整个单词，不一而足。而 token 表示的转换是由一个称为\keyterm{分词器}（\keyterm{tokenizer}）的独立算法来完成的。
+
+一种标准的方法是\keyterm{字节对编码}（\keyterm{Byte Pair Encoding}，\keyterm{BPE}）\cite{srivastava14a}，它通过分层合并字符组来构造 token，尝试获取代表不同长度但频率相似的单词片段的 token，并将 token 分配给长的高频片段以及罕见的单个符号。
 
 \section{梯度下降}\label{sec3.3}
 
