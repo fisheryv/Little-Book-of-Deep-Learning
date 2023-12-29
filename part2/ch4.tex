@@ -115,6 +115,39 @@
 
 \section{激活函数}\label{sec4.3}
 
+如果网络仅组合线性组件，那么它本身就只是线性运算符，因此让网络具有非线性运算非常必要。这些\keyterm{非线性运算}主要是通过\keyterm{激活函数}来实现的，激活函数是将输入张量的每个分量单独通过一个映射进行转换的层，从而得到一个相同形状的张量。
+
+有许多不同的激活函数，但最常用的是\keyterm{线性整流函数}(\keyterm{ReLU}) \citep{glorot11a}，它将负值设置为零并保持正值不变（见图 \ref{fig4.5}，右上）
+$$
+\text{relu}(x) = \begin{cases}
+    0 &\text{如果}\; x < 0 \\
+    x &\text{如果}\; x \ge 0
+ \end{cases}
+ $$
+ 鉴于深度学习的核心训练策略依赖于梯度，因此一个在零点不可微且在数轴正半轴为常数的映射似乎是有问题的。然而，梯度下降所需的主要属性是梯度平均具有信息性。训练开始时，参数初始化和数据归一化使一半的激活为正，从而确保了这一点。
+
+ \begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig/fig4.5.png}
+    \caption[激活函数]{激活函数。}
+    \label{fig4.5}
+\end{figure}
+
+在 ReLU 被普遍使用之前，标准激活函数是\keyterm{双曲正切函数}（\keyterm{Tanh}，见图 \ref{fig4.5}，左上），它在负半轴和正半轴都会以指数速度快速饱和，这加剧了梯度消失。
+
+其他流行的激活函数遵循相同的思路，即保持正值不变压缩负值。\keyterm{Leaky ReLU} \citep{relu_hybrid_icml2013_final} 对负值应用一个小的正乘法因子（见图 \ref{fig4.5}，左下）：
+$$
+\text{leakyrelu}(x) = \begin{cases}
+    ax &\text{如果}\; x < 0 \\
+    \enspace x &\text{如果}\; x \ge 0
+ \end{cases}
+ $$
+ 而 \keyterm{GELU} \citep{arxiv-1606.08415} 是利用高斯分布的累积分布函数来定义的，即：
+ \[\text{gelu}(x) = xP(Z \le x)\]
+ 其中 $Z \sim \mathcal{N} (0,1)$。它的行为大致类似于平滑的 ReLU（见图 \ref{fig4.5}，右下）。
+
+ 激活函数的选择，特别是 ReLU 变体的选择，通常是由经验表现驱动的。
+
 \section{池化}\label{sec4.4}
 
 \section{Dropout}\label{sec4.5}
@@ -125,6 +158,6 @@
 
 \section{注意力层}\label{sec4.8}
 
-\section{代币嵌入}\label{sec4.9}
+\section{Token 嵌入}\label{sec4.9}
 
 \section{位置编码}\label{sec4.10}
