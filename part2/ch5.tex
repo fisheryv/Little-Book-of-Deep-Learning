@@ -70,8 +70,64 @@ ResNet-50 的整体结构如图 \ref{fig5.5} 所示。 它从 $7 \times 7$ 卷�
 
 \section{注意力模型}\label{sec5.3}
 
+正如 \ref{sec4.8} 节所述，许多应用，特别是自然语言处理应用，可以从包含注意力机制的模型中受益匪浅。\cite{arxiv-1706.03762} 提出的 \keyterm{Transformer} 是此类任务的首选架构，它对深度学习的最新进展发挥了重要作用。
+
 \subsubsection*{Transformer}
+
+原始的 Transformer，如图 \ref{fig5.7} 所示，设计用于序列到序列的翻译。它结合了一个编码器，用于处理输入序列并获得精炼的表示，以及一个自回归解码器，基于编码器对输入序列的表示以及到目前为止生成的输出 Token 来生成结果序列的每个 Token。
+
+正如 \ref{sec5.2} 节中的残差卷积网络一样，Transformer 的编码器和解码器都是由残差连接构建的复合块序列。
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig/fig5.6.png}
+    \caption[Transformer 组件]{\keyterm{前馈模块}（上）、\keyterm{自注意力模块}（左下）和\keyterm{交叉注意力模块}（右下）。\cite{Radford2018} 提出的这些特定结构与 \cite{arxiv-1706.03762} 的原始架构略有不同，尤其是在残差块中，先进行层归一化处理。}
+    \label{fig5.6}
+\end{figure}
+
+\begin{itemize}
+    \item 图 \ref{fig5.6} 顶部所示的\keyterm{前馈模块}是一个隐藏层 \keyterm{MLP}，其前面是一层\keyterm{层归一化}处理。它可以分别更新每个位置的表示。
+    \item 图 \ref{fig5.6} 左下角所示的\keyterm{自注意力模块}是一个\keyterm{多头注意力层}（详见 \ref{sec4.8} 节），它能全局重组信息，允许任何位置从任何其他位置收集信息，前面是一层\keyterm{层归一化}处理。如 \ref{sec4.8} 节所述，可以通过在注意力层中使用适当的掩码，来使该模块具有\keyterm{因果性}。
+    \item 图 \ref{fig5.6} 右下角所示的\keyterm{交叉注意力模块}与此类似，不同之处在于它接受两个序列作为输入，一个用来计算查询，另一个用来计算键和值。
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig/fig5.7.png}
+    \caption[Transformer]{原始的编码器-解码器 \keyterm{Transformer 模型}，用于序列到序列的翻译 \citep{arxiv-1706.03762}。}
+    \label{fig5.7}
+\end{figure}
+
+Transformer 的编码器（参见图 \ref{fig5.7}，底部）使用\keyterm{嵌入层}（详见 \ref{sec4.9} 节）重新编码输入的离散 Token 序列 $X_1,\dots,X_T$，并添加\keyterm{位置编码}（详见 \ref{sec4.10} 节），然后通过多个自注意力模块处理，以生成精炼的表示 $Z_1,\dots,Z_T$。
+
+解码器（参见图 \ref{fig5.7}，顶部）以到目前为止生成的结果 Token 序列 $Y_1,\dots,Y_{S-1}$ 作为输入，同样通过嵌入层重新编码它们，添加位置编码，并通过交替的\keyterm{因果}自注意力模块和交叉注意力模块进行处理，以产生预测下一个 Token 的 logit 值。这些交叉注意力模块从编码器的结果表示 $Z_1,\dots,Z_T$ 计算它们的键和值，使得生成的序列能够作为原始序列 $X_1,\dots,X_T$ 的函数。
+
+正如我们在 \ref{sec3.2} 节中看到的那样，\keyterm{因果性}确保这样的模型可以通过最小化整个序列上的交叉熵之和来训练。
 
 \subsubsection*{生成式预训练 Transformer}
 
+如图 \ref{fig5.8} 所示，\keyterm{生成预训练 Transformer} (\keyterm{GPT})  \citep{Radford2018, Radford2019} 是一个纯自回归模型，由一系列因果自注意力模块组成，因此是原始 Transformer 编码器的因果版本。
+
+此类模型的扩展性非常好，可训练参数的数量可达到数千亿。我们将在 \ref{sec7.1} 节中重新探讨它们在文本生成中的应用。
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig/fig5.8.png}
+    \caption[GPT 模型]{GPT 模型}
+    \label{fig5.8}
+\end{figure}
+
 \subsubsection*{视觉 Transformer}
+
+Transformer 已通过\keyterm{视觉 Transformer} (\keyterm{ViT}) 模型 \citep{arxiv-2010.11929} 用于图像分类（见图 \ref{fig5.9}）。
+
+它将三通道输入图像划分为 $M$ 个分辨率为 $P \times P$ 的图像块，然后将其展平，创建一系列形状为 $M \times 3P^2$ 的向量 $X_1,\dots,X_M$，该序列乘以形状为 $3P^2 \times D$ 的可训练矩阵 $W^E$，将其映射到 $M \times D$ 序列，该序列与一个可训练向量 $E_0$ 连接。然后通过多个自注意力模块处理生成的 $(M + 1) \times D$ 序列 $E_0,\dots,E_M$。详见 \ref{sec5.3} 节和图 \ref{fig5.6}。
+
+结果序列中的第一个元素 $Z_0$ 对应于 $E_0$ 并且与图像的任何部分无关，最终由两隐藏层 MLP 处理以获得最终的 $C$ 个 logit 值。\cite{arxiv-1810.04805} 在 BERT 模型中引入了这样一个用于读取类别预测的 Token，称为 \keyterm{CLS token}。
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig/fig5.9.png}
+    \caption[ViT 模型]{视觉 Transformer 模型 \citep{arxiv-2010.11929}}
+    \label{fig5.9}
+\end{figure}
