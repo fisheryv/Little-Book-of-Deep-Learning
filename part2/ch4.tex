@@ -197,7 +197,7 @@ $$
 
 在深度架构训练中，一类重要的操作是\keyterm{归一化层}，它强制对一组激活函数的经验平均值和方差进行标准化。
 
-这一类别的主要层是\keyterm{批量归一化} \citep{43442}，它是唯一一个处理整批数据而不是单个样本的标准层。它由元参数 $D$ 和两组可训练标量参数 $\beta_1,\dots,\beta_D$ 和 $\gamma_1,\dots,\gamma_D$ 参数化。
+这一类别的主要层是\keyterm{批量归一化} \citep{icml43442}，它是唯一一个处理整批数据而不是单个样本的标准层。它由元参数 $D$ 和两组可训练标量参数 $\beta_1,\dots,\beta_D$ 和 $\gamma_1,\dots,\gamma_D$ 参数化。
 
 给定一个由 $B$ 个 $D$ 维样本 $x_1,\dots,x_B$ 组成的批数据，它首先计算每个 D 分量的经验平均值 $\hat{m}_d$ 和方差 $\hat{v}_d$：
 \begin{align*}
@@ -337,10 +337,9 @@ $$
 嵌入层由两个\keyterm{元参数}定义：可能的 Token 值的数量 $N$，以及输出向量的维度 $D$，还一个 $N \times D$ 大小的可训练权重矩阵 $M$。
 
 给定维度为 $D_1 \times \dots \times D_K$ 的整数张量 $X$ 和 ${0, \dots ,N -1}$ 中的值作为输入，嵌入层返回维度为 $D_1 \times \dots \times D_K \times D$ 的实值张量 $Y$，具体公式如下：
-
 \begin{align*}
     \forall d_1, \dots, d_K,& \\
-    Y[d&_1, \dots, \d_K] = M[X[d_1, \dots, \d_K]]
+    Y[d&_1, \dots, d_K] = M[X[d_1, \dots, d_K]]
 \end{align*}
 
 \section{位置编码}\label{sec4.10}
@@ -355,7 +354,7 @@ $$
 \begin{align*}
     \text{pos-enc}[t,d] &= \\
     &\begin{cases}
-        \sin\Big(\frac{t}{T^{d/D}}\Big) &\text{如果 } d \in 2\mathbb{N}\\
+        \sin\Big(\frac{t}{T^{d/D}}\Big) &\text{如果}\; d \in 2\mathbb{N}\\
         \cos\Big(\frac{t}{T^{(d-1)/D}}\Big) &\text{否则}
     \end{cases}
 \end{align*}
