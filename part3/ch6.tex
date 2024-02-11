@@ -107,6 +107,37 @@
 
 \section{强化学习}\label{sec6.7}
 
+许多问题，例如策略游戏或机器人控制，都可以用离散时间状态过程 $S_t$ 和通过选择行动 $A_t$ 来调节的奖励过程 $R_t$ 来形式化。如果 $S_t$ 具有\keyterm{马尔可夫性}，意味着它本身携带的关于未来的信息与直到那一刻为止的所有过去状态一样多，这样的对象就是一个\keyterm{马尔可夫决策过程}（\keyterm{MDP}）。
+
+给定 MDP，目标通常是找到一个\keyterm{策略} $\pi$，使得 $A_t = \pi(S_t)$ 能够最大化\keyterm{回报}的期望，这个回报是一种累积折扣奖励：
+
+\[\mathbb{E}\Bigg[\sum_{t \ge 0}\gamma^tR_t\Bigg]\]
+
+折扣因子满足 $0 < \gamma < 1$。
+
+这是\keyterm{强化学习}（\keyterm{RL}）的标准设置，可以通过引入最优状态-动作价值函数 $Q(s,a)$ 来解决这一问题，该函数是我们在状态 $s$ 执行动作 $a$ 并遵循最优策略的期望回报。它提供了一种计算最优策略的方法，即 $\pi(s) = \argmax_aQ(s,a)$，并且由于马尔可夫假设，它验证了\keyterm{贝尔曼方程}：
+\begin{equation}
+    \begin{aligned}
+    Q&(s,a) = \\
+    &\mathbb{E}\Big[R_t +\gamma \underset{a'} \max Q(S_{t+1},a') \mid S_t = s,A_t = a\Big] \label{eq6.1}
+    \end{aligned}
+\end{equation}
+我们可以据此设计一个程序来训练参数模型 $Q(\cdot, \cdot ;w)$。
+
+为了应用这个框架来玩经典的 Atari 视频游戏，\cite{nature14236} 使用时间 $t$ 帧和之前的三个帧的串联作为 $S_t$，以便马尔可夫假设成立，并使用一个被称为\keyterm{深度 Q 网络}（\keyterm{DQN}）的模型作为 $Q$，由两个卷积层和一个全连接层组成，每个动作一个输出值，遵循 LeNet 的经典结构（参见 \ref{sec5.2} 节）。
+
+训练是通过交替进行游戏和记录游戏场景来实现的，并构建小批量的元组 $(s_n,a_n,r_n,s'_n)\sim(S_t,A_t,R_t,S_{t+1})$，这些元组跨存储的游戏场景和时间步选取，并通过一次随机梯度下降（SGD）迭代来最小化
+\begin{equation}
+    \mathcal{L}(w)= \frac{1}{N}\sum_{n=1}^{N}\big(Q(s_n,a_n;w)-y_n\big)^2 \label{eq6.2}
+\end{equation}
+其中，如果这个元组是游戏场景的结尾，则 $y_n = r_n$；否则，$y_n = r_n + \gamma \max_aQ(s'_n,a; \bar{w})$。
+
+这里 $\bar{w}$ 是 $w$ 的常量副本，即梯度不会通过它传播到 $w$。这是必要的，因为公式 \ref{eq6.1} 中的目标值是 $y_n$ 的期望，而公式 \ref{eq6.2} 中使用的是 $y_n$ 本身。固定 $y_n$ 中的 $w$ 可以更好地近似所需的梯度。
+
+一个关键问题是用于收集游戏场景的策略。\cite{nature14236} 简单地使用了 $\varepsilon$-贪婪策略，该策略包括以 $\varepsilon$ 的概率完全随机地采取一个行动，其余情况下采取最优行动 $\argmax_aQ(s,a)$。引入一些随机性是必要的，有助于促进探索。
+
+训练是用一千万帧完成的，相当于不到八天的游戏时间。经过训练的网络可以计算状态值的准确估计（见图 \ref{fig6.5}），并在用于实验验证的 49 款游戏中的大多数上达到了人类的表现水平。
+
 \begin{figure}
     \centering
     \includegraphics[width=0.9\textwidth]{fig/fig6.5.png}
